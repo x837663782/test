@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账号列表 - 搜索</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #f5f7fb;
+            padding: 20px;
+            color: #1a1a2e;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #16213e;
+        }
+        .search-box {
+            background: white;
+            padding: 20px 24px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 28px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+        .search-box label {
+            font-weight: 500;
+            font-size: 16px;
+        }
+        .search-box input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 16px;
+            border: 1.5px solid #dce1ec;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: 0.2s;
+        }
+        .search-box input:focus {
+            border-color: #4a6cf7;
+            box-shadow: 0 0 0 3px rgba(74,108,247,0.15);
+        }
+        .search-box .count {
+            font-size: 14px;
+            color: #6b7280;
+            background: #f0f2f5;
+            padding: 4px 14px;
+            border-radius: 20px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 20px 22px;
+            transition: 0.2s;
+            border-left: 4px solid #4a6cf7;
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+        .card .id {
+            font-weight: 700;
+            font-size: 18px;
+            color: #4a6cf7;
+            margin-bottom: 4px;
+        }
+        .card .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 20px;
+            font-size: 14px;
+            color: #4b5563;
+            margin: 8px 0 10px 0;
+            background: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+        .card .meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .card .meta .label {
+            color: #9ca3af;
+            font-weight: 400;
+        }
+        .card .title {
+            font-size: 15px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #1f2937;
+            margin-top: 6px;
+            background: #fafbfc;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #eef2f6;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+        .card .title::-webkit-scrollbar {
+            width: 4px;
+        }
+        .card .title::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+        .no-result {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+            font-size: 18px;
+            grid-column: 1 / -1;
+        }
+        @media (max-width: 480px) {
+            .grid { grid-template-columns: 1fr; }
+            .search-box { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📋 账号列表</h1>
+    <div class="search-box">
+        <label for="searchInput">🔍 搜索 ID</label>
+        <input type="text" id="searchInput" placeholder="输入 id 关键词…" autofocus>
+        <span class="count" id="countDisplay">共 0 条</span>
+    </div>
+    <div class="grid" id="cardGrid"></div>
+</div>
+
+<script>
+    // ======== 内嵌 JSON 数据 ========
+    const rawData = {"21919698": {"id": "21919698", "价格": 400, "区服": 0, "系统": 0, "标题": "63级 60国王球 8棱镜球 异色7 异色炫彩35 不可二次 不可修改实名 \n【宠物】异色-小独角兽,异色-空空颅,异色-粉粉星,异色-绒仙子,异色-立方人,异色-格兰球\n【异色炫彩宠物】异色炫彩-雅丹鬃,异色炫彩-幽隐树,异色炫彩-尖嘴狐仙,异色炫彩-小丑豆豆,异色炫彩-菊花梨,异色炫彩-公平鸽,异色炫彩-爆焰仔,异色炫彩-落陨星兔,异色炫彩-贝古斯,异色炫彩-叮叮恶魔,异色炫彩-嘟嘟锅,异色炫彩-白金独角兽,异色炫彩-烟花团,异色炫彩-巨鼓象,异色炫彩-炫光迪迪,异色炫彩-牵线木偶,异色炫彩-咕咕帽,异色炫彩-红绒十字,异色炫彩-酷拉,异色炫彩-雪影娃娃,异色炫彩-恶魔狼,异色炫彩-奇丽花,异色炫彩-奇丽草,异色炫彩-格兰种子,异色炫彩-窃光蚊,异色炫彩-小皮球,异色炫彩-夜枭,异色炫彩-燃薪虫,异色炫彩-月牙雪熊,异色炫彩-利灯鱼,异色炫彩-疾光千兽", "data": {}}, "21917998": {"id": "21917998", "价格": 430, "区服": 0, "系统": 0, "标题": "63级 9国王球 1棱镜球 异色27 异色炫彩 27 黑白异色炫彩恶魔狼  黑白异色炫彩霹雳迪迪 不可二次 不可修改实名 \n【宠物】异色-幽隐树,异色-公平鸽,异色-爆焰仔,异色-雅丹鬃,异色-嘟嘟煲,异色-小独角兽,异色-烟花团,异色-炫光迪迪,异色-猴麦仔,异色-奇丽草,异色-燃薪虫,异色-利灯鱼,异色-柴渣虫,异色-呼呼猪,异色-獠牙猪,异色-大耳帽兜,异色-帽兜娃娃,异色-雪影娃娃,异色-机械方方,异色-格兰种子,异色-恶魔叮\n【异色炫彩宠物】异色炫彩-小丑豆豆,异色炫彩-小丑公爵,异色炫彩-菊花梨,异色炫彩-爆焰喷喷,异色炫彩-霹雳迪迪,异色炫彩-叮叮恶魔,异色炫彩-小独角兽,异色炫彩-白金独角兽,异色炫彩-烟花伯爵,异色炫彩-拉特,异色炫彩-机械方方,异色炫彩-治愈兔,异色炫彩-雪影娃娃,异色炫彩-大耳帽兜,异色炫彩-呼呼猪,异色炫彩-恶魔狼,异色炫彩-粉粉星,异色炫彩-燃薪虫,异色炫彩-月牙雪熊", "data": {}}, "21914575": {"id": "21914575", "价格": 350, "区服": 0, "系统": 0, "标题": "55级 2国王球 不可二次 不可修改实名 \n【异色炫彩宠物】异色炫彩-雅丹鬃,异色炫彩-落陨星兔,异色炫彩-粉耳星兔,异色炫彩-粉星仔,异色炫彩-酷拉,异色炫彩-雪影娃娃,异色炫彩-恶魔狼,异色炫彩-贝瑟,异色炫彩-小皮球,异色炫彩-粉粉星,异色炫彩-燃薪虫,异色炫彩-月牙雪熊,异色炫彩-利灯鱼,异色炫彩-疾光千兽", "data": {}}, "21913966": {"id": "21913966", "价格": 560, "区服": 0, "系统": 0, "标题": "63级 16国王球 6棱镜球 异色炫彩8 黑白异色炫彩奇丽花 不可二次 不可修改实名 \n【异色炫彩宠物】异色炫彩-幽隐树,异色炫彩-小雪人,异色炫彩-贝古斯,异色炫彩-小鼓象,异色炫彩-空空颅,异色炫彩-利灯鱼", "data": {}}, "21913245": {"id": "21913245", "价格": 340, "区服": 0, "系统": 0, "标题": "60级 14国王球 异色26 异色炫彩32 可二次 可修改实名 \n【宠物】异色-尖嘴狐仙,异色-小丑豆豆,异色-公平鸽,异色-白金独角兽,异色-烟花团,异色-猴麦仔,异色-奇丽花,异色-窃光蚊,异色-夜枭,异色-小皮球,异色-贝古斯,异色-恶魔狼,异色-大耳帽兜,异色-帽兜娃娃,异色-雪影娃娃,异色-拉特,异色-多彩方方,异色-立方人,异色-恶魔叮\n【异色炫彩宠物】异色炫彩-雅丹鬃,异色炫彩-幽隐树,异色炫彩-朔夜伊芙,异色炫彩-尖嘴狐仙,异色炫彩-小丑豆豆,异色炫彩-小丑公爵,异色炫彩-菊花梨,异色炫彩-公平鸽,异色炫彩-雪怪,异色炫彩-爆焰喷喷,异色炫彩-落陨星兔,异色炫彩-霹雳迪迪,异色炫彩-叮叮恶魔,异色炫彩-嘟嘟锅,异色炫彩-白金独角兽,异色炫彩-烟花伯爵,异色炫彩-巨鼓象,异色炫彩-炫光迪迪,异色炫彩-加油海葵,异色炫彩-牵线木偶,异色炫彩-帅帅魔偶,异色炫彩-咕德帽帽,异色炫彩-猴麦仔,异色炫彩-恶魔狼,异色炫彩-格兰球,异色炫彩-粉粉星,异色炫彩-疾光千兽,异色炫彩-绒仙子", "data": {}}, "21792233": {"id": "21792233", "价格": 650, "区服": 0, "系统": 0, "标题": "64级 6国王球 异色3 异色炫彩43 可二次 可修改实名 \n【宠物】异色-疾光千兽,异色-利灯鱼,异色-立方人\n【异色炫彩宠物】异色炫彩-雅丹鬃,异色炫彩-幽隐树,异色炫彩-朔夜伊芙,异色炫彩-尖嘴狐仙,异色炫彩-菊花梨,异色炫彩-雪怪,异色炫彩-爆焰喷喷,异色炫彩-落陨星兔,异色炫彩-粉耳星兔,异色炫彩-贝古斯,异色炫彩-叮叮恶魔,异色炫彩-白金独角兽,异色炫彩-巨鼓象,异色炫彩-粉星仔,异色炫彩-拉特,异色炫彩-多彩方方,异色炫彩-红绒十字,异色炫彩-治愈兔,异色炫彩-酷拉,异色炫彩-雪影娃娃,异色炫彩-大耳帽兜,异色炫彩-獠牙猪,异色炫彩-呼呼猪,异色炫彩-恶魔狼,异色炫彩-奇丽花,异色炫彩-奇丽草,异色炫彩-格兰球,异色炫彩-窃光蚊,异色炫彩-小皮球,异色炫彩-空空颅,异色炫彩-燃薪虫,异色炫彩-柴渣虫,异色炫彩-月牙雪熊,异色炫彩-双灯鱼,异色炫彩-绒仙子", "data": {}}, "21906588": {"id": "21906588", "价格": 330, "区服": 0, "系统": 0, "标题": "62级 54国王球 9棱镜球 异色24 异色炫彩42 不可二次 不可修改实名 \n【宠物】异色-幽隐树,异色-奇丽草,异色-疾光千兽,异色-双灯鱼,异色-利灯鱼,异色-月牙雪熊,异色-嗜光嗡嗡,异色-柴渣虫,异色-空空颅,异色-粉粉星,异色-粉星仔,异色-恶魔狼,异色-治愈兔,异色-大耳帽兜,异色-拉特,异色-机械方方,异色-绒绒,异色-恶魔叮\n【异色炫彩宠物】异色炫彩-雅丹鬃,异色炫彩-菊花梨,异色炫彩-落陨星兔,异色炫彩-贝古斯,异色炫彩-小鼓象,异色炫彩-小独角兽,异色炫彩-白金独角兽,异色炫彩-炫光迪迪,异色炫彩-咕咕帽,异色炫彩-粉星仔,异色炫彩-拉特,异色炫彩-红绒十字,异色炫彩-治愈兔,异色炫彩-酷拉,异色炫彩-雪影娃娃,异色炫彩-大耳帽兜,异色炫彩-獠牙猪,异色炫彩-呼呼猪,异色炫彩-恶魔狼,异色炫彩-奇丽花,异色炫彩-奇丽草,异色炫彩-格兰球,异色炫彩-粉粉星,异色炫彩-夜枭,异色炫彩-燃薪虫,异色炫彩-嗜光嗡嗡,异色炫彩-月牙雪熊", "data": {}}, "21903134": {"id": "21903134", "价格": 380, "区服": 0, "系统": 0, "标题": "账号保值", "data": {}}, "21902807": {"id": "21902807", "价格": 310, "区服": 0, "系统": 0, "标题": "账号保值", "data": {}}, "21902430": {"id": "21902430", "价格": 330, "区服": 0, "系统": 0, "标题": "账号保值", "data": {}}};
+
+    // 将数据转换为数组（按 id 排序）
+    const items = Object.values(rawData).sort((a, b) => a.id.localeCompare(b.id));
+
+    const grid = document.getElementById('cardGrid');
+    const searchInput = document.getElementById('searchInput');
+    const countDisplay = document.getElementById('countDisplay');
+
+    // 渲染卡片
+    function renderCards(filterText) {
+        const lowerFilter = filterText.toLowerCase().trim();
+        const filtered = lowerFilter === '' 
+            ? items 
+            : items.filter(item => item.id.includes(lowerFilter));
+
+        if (filtered.length === 0) {
+            grid.innerHTML = `<div class="no-result">😕 没有找到匹配的 ID</div>`;
+            countDisplay.textContent = '共 0 条';
+            return;
+        }
+
+        let html = '';
+        for (const item of filtered) {
+            // 安全转义标题（防止 XSS）
+            const titleEscaped = (item.标题 || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            html += `
+                <div class="card">
+                    <div class="id">#${item.id}</div>
+                    <div class="meta">
+                        <span><span class="label">💰</span> ${item.价格 || 0}</span>
+                        <span><span class="label">🖥️ 区服</span> ${item.区服 ?? '-'}</span>
+                        <span><span class="label">⚙️ 系统</span> ${item.系统 ?? '-'}</span>
+                    </div>
+                    <div class="title">${titleEscaped || '（无标题）'}</div>
+                </div>
+            `;
+        }
+        grid.innerHTML = html;
+        countDisplay.textContent = `共 ${filtered.length} 条`;
+    }
+
+    // 初始渲染
+    renderCards('');
+
+    // 监听搜索输入
+    searchInput.addEventListener('input', function() {
+        renderCards(this.value);
+    });
+</script>
+</body>
+</html>
